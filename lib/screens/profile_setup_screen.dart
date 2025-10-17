@@ -1,219 +1,425 @@
 import 'package:flutter/material.dart';
 
+class AppColors {
+  static const Color ivory = Color(0xFFFFFFF0);
+  static const Color beige = Color(0xFFF5F5DC);
+  static const Color lightBeige = Color(0xFFFAF0E6);
+  static const Color gold = Color(0xFFD4AF37);
+  static const Color darkGold = Color(0xFFB8860B);
+  static const Color textDark = Color(0xFF4A4A4A);
+  static const Color textLight = Color(0xFF8B8B8B);
+}
+
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key});
+  const ProfileSetupScreen({Key? key}) : super(key: key);
 
   @override
   State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
 }
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
-  int currentStep = 0;
-  String? selectedSkinType;
-  List<String> selectedConcerns = [];
-  String? selectedBudget;
-  List<String> selectedCategories = [];
-
-  final skinTypes = ['Normale', 'Secca', 'Grassa', 'Mista', 'Sensibile'];
-  final concerns = [
+  int _currentStep = 0;
+  
+  // Dati del profilo
+  String _selectedSkinType = '';
+  String _selectedSkinTone = '';
+  String _selectedUndertone = '';
+  List<String> _selectedConcerns = [];
+  String _selectedBudget = '';
+  
+  final List<String> _skinTypes = ['Normale', 'Secca', 'Grassa', 'Mista', 'Sensibile'];
+  final List<String> _skinTones = ['Molto Chiaro', 'Chiaro', 'Medio', 'Olivastro', 'Scuro', 'Molto Scuro'];
+  final List<String> _undertones = ['Freddo', 'Neutro', 'Caldo'];
+  final List<String> _concerns = [
     'Acne',
     'Rughe',
     'Macchie',
     'Pori dilatati',
-    'Disidratazione',
-    'Rossori'
+    'Rossori',
+    'Occhiaie',
+    'Secchezza',
+    'Lucidità'
   ];
-  final budgets = ['Low (€0-20)', 'Mid (€20-50)', 'High (€50+)', 'Lusso'];
-  final categories = [
-    '💄 Makeup',
-    '🧴 Skincare',
-    '💅 Unghie',
-    '💇 Capelli',
-    '🧖 Corpo',
-    '👃 Profumi'
-  ];
+  final List<String> _budgets = ['Low Cost', 'Medio', 'Premium', 'Lusso'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Progress bar
-            LinearProgressIndicator(
-              value: (currentStep + 1) / 4,
-              backgroundColor: Colors.grey[200],
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-            ),
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                children: [
-                  if (currentStep > 0)
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => setState(() => currentStep--),
+      backgroundColor: AppColors.ivory,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          'Setup Profilo',
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          // Progress indicator
+          Container(
+            padding: const EdgeInsets.all(20),
+            color: Colors.white,
+            child: Row(
+              children: List.generate(4, (index) {
+                return Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(right: index < 3 ? 8 : 0),
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: index <= _currentStep ? AppColors.gold : AppColors.beige,
+                      borderRadius: BorderRadius.circular(2),
                     ),
+                  ),
+                );
+              }),
+            ),
+          ),
+          
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: _buildCurrentStep(),
+            ),
+          ),
+          
+          // Pulsanti navigazione
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                if (_currentStep > 0)
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Passo ${currentStep + 1} di 4',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
+                    child: OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          _currentStep--;
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(color: AppColors.gold),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _getStepTitle(),
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      ),
+                      child: Text(
+                        'Indietro',
+                        style: TextStyle(
+                          color: AppColors.gold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: _skipToHome,
-                    child: const Text(
-                      'Salta',
-                      style: TextStyle(color: Colors.grey),
+                if (_currentStep > 0) const SizedBox(width: 12),
+                Expanded(
+                  flex: _currentStep > 0 ? 1 : 1,
+                  child: ElevatedButton(
+                    onPressed: _canProceed() ? _handleNext : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.gold,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      disabledBackgroundColor: AppColors.beige,
                     ),
-                  ),
-                ],
-              ),
-            ),
-            // Content
-            Expanded(
-              child: _buildStepContent(),
-            ),
-            // Continue button
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _canContinue() ? _continue : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    disabledBackgroundColor: Colors.grey[300],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    currentStep == 3 ? 'Inizia' : 'Continua',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _canContinue() ? Colors.white : Colors.grey[500],
+                    child: Text(
+                      _currentStep == 3 ? 'Completa' : 'Avanti',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  String _getStepTitle() {
-    switch (currentStep) {
-      case 0:
-        return 'Tipo di pelle';
-      case 1:
-        return 'Problematiche';
-      case 2:
-        return 'Budget preferito';
-      case 3:
-        return 'Interessi';
-      default:
-        return '';
-    }
-  }
-
-  Widget _buildStepContent() {
-    switch (currentStep) {
+  Widget _buildCurrentStep() {
+    switch (_currentStep) {
       case 0:
         return _buildSkinTypeStep();
       case 1:
-        return _buildConcernsStep();
+        return _buildSkinToneStep();
       case 2:
-        return _buildBudgetStep();
+        return _buildConcernsStep();
       case 3:
-        return _buildCategoriesStep();
+        return _buildBudgetStep();
       default:
-        return const SizedBox();
+        return Container();
+    }
+  }
+
+  bool _canProceed() {
+    switch (_currentStep) {
+      case 0:
+        return _selectedSkinType.isNotEmpty;
+      case 1:
+        return _selectedSkinTone.isNotEmpty && _selectedUndertone.isNotEmpty;
+      case 2:
+        return _selectedConcerns.isNotEmpty;
+      case 3:
+        return _selectedBudget.isNotEmpty;
+      default:
+        return false;
+    }
+  }
+
+  void _handleNext() {
+    if (_currentStep == 3) {
+      // ULTIMO STEP - NAVIGA ALL'APP PRINCIPALE (con profilo)
+      Navigator.pushReplacementNamed(context, '/main');
+    } else {
+      setState(() {
+        _currentStep++;
+      });
     }
   }
 
   Widget _buildSkinTypeStep() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Seleziona il tuo tipo di pelle per ricevere consigli personalizzati',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          '💧 Che tipo di pelle hai?',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textDark,
+          ),
         ),
-        const SizedBox(height: 24),
-        ...skinTypes.map((type) => _buildOptionCard(
-              title: type,
-              isSelected: selectedSkinType == type,
-              onTap: () => setState(() => selectedSkinType = type),
-            )),
+        const SizedBox(height: 8),
+        Text(
+          'Aiutaci a consigliarti i prodotti più adatti',
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.textLight,
+          ),
+        ),
+        const SizedBox(height: 32),
+        ..._skinTypes.map((type) {
+          final isSelected = _selectedSkinType == type;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _selectedSkinType = type;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.gold : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected ? AppColors.gold : AppColors.beige,
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isSelected ? Icons.check_circle : Icons.circle_outlined,
+                      color: isSelected ? Colors.white : AppColors.textLight,
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      type,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected ? Colors.white : AppColors.textDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildSkinToneStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '🎨 Qual è il tuo incarnato?',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 32),
+        
+        Text(
+          'Tonalità della pelle',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: _skinTones.map((tone) {
+            final isSelected = _selectedSkinTone == tone;
+            return InkWell(
+              onTap: () {
+                setState(() {
+                  _selectedSkinTone = tone;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.gold : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected ? AppColors.gold : AppColors.beige,
+                  ),
+                ),
+                child: Text(
+                  tone,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppColors.textDark,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        
+        const SizedBox(height: 32),
+        
+        Text(
+          'Sottotono',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: _undertones.map((undertone) {
+            final isSelected = _selectedUndertone == undertone;
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _selectedUndertone = undertone;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.gold : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? AppColors.gold : AppColors.beige,
+                      ),
+                    ),
+                    child: Text(
+                      undertone,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : AppColors.textDark,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ],
     );
   }
 
   Widget _buildConcernsStep() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Seleziona una o più problematiche (opzionale)',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          '✨ Quali sono le tue esigenze?',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textDark,
+          ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 8),
+        Text(
+          'Seleziona tutti quelli che ti interessano',
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.textLight,
+          ),
+        ),
+        const SizedBox(height: 32),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: concerns.map((concern) {
-            final isSelected = selectedConcerns.contains(concern);
+          spacing: 12,
+          runSpacing: 12,
+          children: _concerns.map((concern) {
+            final isSelected = _selectedConcerns.contains(concern);
             return InkWell(
               onTap: () {
                 setState(() {
                   if (isSelected) {
-                    selectedConcerns.remove(concern);
+                    _selectedConcerns.remove(concern);
                   } else {
-                    selectedConcerns.add(concern);
+                    _selectedConcerns.add(concern);
                   }
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.orange : Colors.grey[100],
+                  color: isSelected ? AppColors.gold : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isSelected ? Colors.orange : Colors.grey[300]!,
+                    color: isSelected ? AppColors.gold : AppColors.beige,
                   ),
                 ),
                 child: Text(
                   concern,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
-                    fontWeight: FontWeight.w500,
+                    color: isSelected ? Colors.white : AppColors.textDark,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -225,158 +431,100 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Widget _buildBudgetStep() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Seleziona la tua fascia di prezzo preferita',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          '💰 Qual è il tuo budget?',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textDark,
+          ),
         ),
-        const SizedBox(height: 24),
-        ...budgets.map((budget) => _buildOptionCard(
-              title: budget,
-              isSelected: selectedBudget == budget,
-              onTap: () => setState(() => selectedBudget = budget),
-            )),
-      ],
-    );
-  }
-
-  Widget _buildCategoriesStep() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      children: [
+        const SizedBox(height: 8),
         Text(
-          'Seleziona le categorie che ti interessano',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          'Ti aiuteremo a trovare i prodotti nella tua fascia di prezzo',
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.textLight,
+          ),
         ),
-        const SizedBox(height: 24),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: categories.map((category) {
-            final isSelected = selectedCategories.contains(category);
-            return InkWell(
+        const SizedBox(height: 32),
+        ..._budgets.map((budget) {
+          final isSelected = _selectedBudget == budget;
+          String description = '';
+          switch (budget) {
+            case 'Low Cost':
+              description = 'Fino a 15€ per prodotto';
+              break;
+            case 'Medio':
+              description = '15€ - 40€ per prodotto';
+              break;
+            case 'Premium':
+              description = '40€ - 80€ per prodotto';
+              break;
+            case 'Lusso':
+              description = 'Oltre 80€ per prodotto';
+              break;
+          }
+          
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: InkWell(
               onTap: () {
                 setState(() {
-                  if (isSelected) {
-                    selectedCategories.remove(category);
-                  } else {
-                    selectedCategories.add(category);
-                  }
+                  _selectedBudget = budget;
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.orange : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(25),
+                  color: isSelected ? AppColors.gold : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isSelected ? Colors.orange : Colors.grey[300]!,
+                    color: isSelected ? AppColors.gold : AppColors.beige,
                     width: 2,
                   ),
                 ),
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isSelected ? Icons.check_circle : Icons.circle_outlined,
+                      color: isSelected ? Colors.white : AppColors.textLight,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            budget,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected ? Colors.white : AppColors.textDark,
+                            ),
+                          ),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isSelected 
+                                  ? Colors.white.withOpacity(0.9) 
+                                  : AppColors.textLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOptionCard({
-    required String title,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.orange[50] : Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? Colors.orange : Colors.grey[300]!,
-              width: isSelected ? 2 : 1,
             ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: isSelected ? Colors.orange[900] : Colors.black87,
-                  ),
-                ),
-              ),
-              if (isSelected)
-                Icon(Icons.check_circle, color: Colors.orange, size: 24),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  bool _canContinue() {
-    switch (currentStep) {
-      case 0:
-        return selectedSkinType != null;
-      case 1:
-        return true; // Le problematiche sono opzionali
-      case 2:
-        return selectedBudget != null;
-      case 3:
-        return selectedCategories.isNotEmpty;
-      default:
-        return false;
-    }
-  }
-
-  void _continue() {
-    if (currentStep < 3) {
-      setState(() => currentStep++);
-    } else {
-      _goToHome();
-    }
-  }
-
-  void _skipToHome() {
-    _goToHome();
-  }
-
-  void _goToHome() {
-    // TODO: Navigare alla home screen
-    // Per ora mostriamo un dialog
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Setup completato!'),
-        content: const Text('Il profilo è stato configurato con successo.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+          );
+        }).toList(),
+      ],
     );
   }
 }
