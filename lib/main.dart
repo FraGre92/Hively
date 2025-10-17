@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'screens/profile_screen.dart';
-// Importa gli altri screen quando li crei
+import 'screens/splash_screen.dart';
+import 'screens/terms_screen.dart';
+import 'screens/auth_screen.dart';
+import 'screens/profile_setup_screen.dart';
 
 // COLORI TEMA
 class AppColors {
   static const Color ivory = Color(0xFFFFFFF0);
   static const Color beige = Color(0xFFF5F5DC);
+  static const Color lightBeige = Color(0xFFFAF0E6);
   static const Color gold = Color(0xFFD4AF37);
   static const Color darkGold = Color(0xFFB8860B);
   static const Color textDark = Color(0xFF4A4A4A);
@@ -33,88 +37,16 @@ class HivelyApp extends StatelessWidget {
         ),
       ),
       
-      // PUOI SCEGLIERE DA DOVE PARTIRE:
-      // home: MainNavigationScreen(), // <- Vai direttamente alla nav principale
-      home: const AuthFlowScreen(), // <- Oppure passa dal flow di autenticazione
-    );
-  }
-}
-
-// ========================================
-// FLOW DI AUTENTICAZIONE (Splash → Termini → Setup)
-// ========================================
-class AuthFlowScreen extends StatelessWidget {
-  const AuthFlowScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.ivory,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.face_retouching_natural, size: 100, color: AppColors.gold),
-            const SizedBox(height: 24),
-            Text(
-              'HIVELY',
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: AppColors.gold,
-                letterSpacing: 4,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Beauty & Makeup Community',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.textLight,
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(height: 60),
-            
-            // PULSANTE PER SALTARE IL FLOW E ANDARE ALLA APP
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.gold,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: const Text(
-                'Entra nell\'App',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            TextButton(
-              onPressed: () {
-                // Qui andrai al flow completo: Termini → Login → Setup
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Flow completo coming soon!')),
-                );
-              },
-              child: Text(
-                'Vai al flow di registrazione completo',
-                style: TextStyle(color: AppColors.textLight),
-              ),
-            ),
-          ],
-        ),
-      ),
+      // PARTE DAL FLOW COMPLETO DI AUTENTICAZIONE
+      home: const SplashScreen(),
+      
+      // ROUTES per la navigazione
+      routes: {
+        '/terms': (context) => const TermsScreen(),
+        '/auth': (context) => const AuthScreen(),
+        '/setup': (context) => const ProfileSetupScreen(),
+        '/main': (context) => const MainNavigationScreen(),
+      },
     );
   }
 }
