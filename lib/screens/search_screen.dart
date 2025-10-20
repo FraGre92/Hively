@@ -713,14 +713,33 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                     
                     const SizedBox(height: 8),
                     
-                    // Fascia prezzo
-                    Text(
-                      product['priceRange'],
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.darkGold,
-                      ),
+                    // Fascia prezzo + Prezzo reale
+                    Row(
+                      children: [
+                        Text(
+                          product['priceRange'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.darkGold,
+                          ),
+                        ),
+                        Text(
+                          ' · ',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+                        Text(
+                          product['actualPrice'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -915,16 +934,80 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         'name': 'Rossetto Matte Long-Lasting',
         'brand': 'Maybelline',
         'rating': 4,
-        'priceRange': '\$\$ (15-40€)',
+        'priceRange': '\$\
+
+  List<Map<String, dynamic>> _getMockProfiles() {
+    // TODO: Sostituisci con chiamata API
+    return [
+      {
+        'id': '1',
+        'username': '@makeup_artist_pro',
+        'type': 'Make-up Artist',
+        'reviews': 156,
+        'followers': '12.5K',
+        'avatarUrl': '',
+      },
+      {
+        'id': '2',
+        'username': '@beauty_influencer',
+        'type': 'Influencer',
+        'reviews': 89,
+        'followers': '45.2K',
+        'avatarUrl': '',
+      },
+      {
+        'id': '3',
+        'username': '@skincare_lover',
+        'type': 'Utente',
+        'reviews': 34,
+        'followers': '892',
+        'avatarUrl': '',
+      },
+    ];
+  }
+},
+        'actualPrice': '€25.99',
         'imageUrl': '',
-        'reviewsCount': 1234, // Numero recensioni
+        'reviewsCount': 1234,
       },
       {
         'id': '2',
         'name': 'Lip Color Rich Rosso',
         'brand': 'L\'Oréal',
         'rating': 5,
-        'priceRange': '\$\$ (15-40€)',
+        'priceRange': '\$\
+
+  List<Map<String, dynamic>> _getMockProfiles() {
+    // TODO: Sostituisci con chiamata API
+    return [
+      {
+        'id': '1',
+        'username': '@makeup_artist_pro',
+        'type': 'Make-up Artist',
+        'reviews': 156,
+        'followers': '12.5K',
+        'avatarUrl': '',
+      },
+      {
+        'id': '2',
+        'username': '@beauty_influencer',
+        'type': 'Influencer',
+        'reviews': 89,
+        'followers': '45.2K',
+        'avatarUrl': '',
+      },
+      {
+        'id': '3',
+        'username': '@skincare_lover',
+        'type': 'Utente',
+        'reviews': 34,
+        'followers': '892',
+        'avatarUrl': '',
+      },
+    ];
+  }
+},
+        'actualPrice': '€19.90',
         'imageUrl': '',
         'reviewsCount': 892,
       },
@@ -933,7 +1016,39 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         'name': 'Red Lipstick Classic',
         'brand': 'NYX',
         'rating': 4,
-        'priceRange': '\$ (0-15€)',
+        'priceRange': '\
+
+  List<Map<String, dynamic>> _getMockProfiles() {
+    // TODO: Sostituisci con chiamata API
+    return [
+      {
+        'id': '1',
+        'username': '@makeup_artist_pro',
+        'type': 'Make-up Artist',
+        'reviews': 156,
+        'followers': '12.5K',
+        'avatarUrl': '',
+      },
+      {
+        'id': '2',
+        'username': '@beauty_influencer',
+        'type': 'Influencer',
+        'reviews': 89,
+        'followers': '45.2K',
+        'avatarUrl': '',
+      },
+      {
+        'id': '3',
+        'username': '@skincare_lover',
+        'type': 'Utente',
+        'reviews': 34,
+        'followers': '892',
+        'avatarUrl': '',
+      },
+    ];
+  }
+},
+        'actualPrice': '€8.90',
         'imageUrl': '',
         'reviewsCount': 567,
       },
@@ -942,7 +1057,39 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         'name': 'Rouge Sensation',
         'brand': 'NARS',
         'rating': 5,
-        'priceRange': '\$\$\$ (40-80€)',
+        'priceRange': '\$\$\
+
+  List<Map<String, dynamic>> _getMockProfiles() {
+    // TODO: Sostituisci con chiamata API
+    return [
+      {
+        'id': '1',
+        'username': '@makeup_artist_pro',
+        'type': 'Make-up Artist',
+        'reviews': 156,
+        'followers': '12.5K',
+        'avatarUrl': '',
+      },
+      {
+        'id': '2',
+        'username': '@beauty_influencer',
+        'type': 'Influencer',
+        'reviews': 89,
+        'followers': '45.2K',
+        'avatarUrl': '',
+      },
+      {
+        'id': '3',
+        'username': '@skincare_lover',
+        'type': 'Utente',
+        'reviews': 34,
+        'followers': '892',
+        'avatarUrl': '',
+      },
+    ];
+  }
+},
+        'actualPrice': '€45.00',
         'imageUrl': '',
         'reviewsCount': 445,
       },
