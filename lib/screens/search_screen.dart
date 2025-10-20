@@ -104,6 +104,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                         controller: _searchController,
                         onChanged: (value) {
                           setState(() {
+                             print('SEARCH QUERY: $value'); 
                             _searchQuery = value;
                           });
                         },
